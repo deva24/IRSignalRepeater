@@ -1,0 +1,119 @@
+
+body
+{
+	margin:0px;
+	font-family:sans-serif;
+}
+
+.wholecover
+{
+	background:gray;
+	position:absolute;
+	display:grid;
+	grid-template-rows:50px 30px auto;
+	grid-gap:1px;
+	height:100%;
+	width:100%;
+}
+
+.panel
+{
+	background:white;
+	padding:5px;
+}
+
+.address
+{
+	background: #343539;
+	font-size: 15px;
+	grid-row:2;
+	display:table-cell;
+	margin:auto 0px;
+	padding-left:25px;
+	color:#9ba0a9;
+}
+
+.bottom
+{
+	grid-row:3;
+}
+
+
+
+
+
+.icon
+{
+	width:64px;
+	height:64px;
+}
+.text
+{
+	width:64px;
+	height:40px;
+	text-align:center;
+	font-family: sans-serif;
+	font-size:14px;
+}
+
+.icon.folder
+{
+	background:url('../ico/folder.png');
+}
+
+.icon.folder.back
+{
+	background:url('../ico/folderUp.png');
+}
+
+.icon.file
+{
+	background:url('../ico/file.png');
+}
+
+
+.item
+{
+	margin:10px;
+	cursor:pointer;
+	padding:5px;
+	display:inline-block;
+	box-sizing:border-box;
+	overflow:hidden;
+}
+
+.item:hover
+{
+	background:#cdecff;	
+}
+.item.active
+{
+	background:#abdfff;
+}
+.item.active:hover
+{
+	background:#6dc8ff;	
+}
+
+.hidden
+{
+	display:none;
+}
+
+.ribbon
+{
+	grid-row:1;
+	background:#1d1e22;
+	
+}
+
+.ribbon .button
+{
+	background:#444857;
+	color:white;
+	overflow:hidden;
+	height:100%;
+	width:50px;
+	float:left;
+	margin:2px;
+}

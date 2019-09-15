@@ -1,0 +1,58 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="css/fsb.css">
+</head>
+
+<body>
+    <div class='wholecover' id='app1'>
+        <div class='panel ribbon'>
+            <div class='button' onclick="uploadHandler()">
+                <span>Upload</span>
+            </div>
+            <div class='button' onclick="downloadHandler()">
+                <span>Download</span>
+            </div>
+            <div class='button' onclick="deleteHandler()">
+                <span>Delete</span>
+            </div>
+        </div>
+        <div class='panel address'>
+            <div class='path'>
+                <span>Directory Path:</span> <span>/{{directory}}</span>
+            </div>
+        </div>
+        <div class='panel bottom' id='dropzone'>
+            <content-item
+                v-on:select='itemClicked(item)'
+                v-for='item in content'
+                v-bind:item='item'
+                v-bind:active='item==selected'
+                v-on:click='console.log("test")'></content-item>
+        </div>
+    </div>
+
+    <div class='hidden'>
+        <div id='templates'>
+            <template id='item'>
+                <div class='item' :class="{active:active}" v-on:click="$emit('select');">
+                    <div class='icon' :class='item.icon' ></div>
+                    <div class='text'>{{item.name}}</div>
+                </div>
+            </template>
+        </div>
+        <div>
+            <form method="post" enctype="multipart/form-data">
+                <input type="file" name="name">
+                <input class="button" type="submit" value="Upload">
+            </form>
+            <form id='uploaderForm' method='POST' action='/upload' enctype='multipart/form-data'>
+                <input type='submit' id='pushFile' value='Update'>
+            </form>
+        </div>
+    </div>
+    <script src="js/vue.js"></script>
+    <script src='js/fsb.js'></script>
+</body>
+
+</html>

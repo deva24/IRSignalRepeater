@@ -1,0 +1,7 @@
+CACHE MANIFEST
+# 2010-06-18:v2
+
+# Explicitly cached 'master entries'.
+CACHE:
+index.htm
+icons-512.png
