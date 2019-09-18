@@ -18,6 +18,7 @@
 #include <ESP8266WebServer.h>
 #include <FS.h>
 #include <LinkedList.h>
+#include <limits.h>
 
 #ifndef STASSID
 #define STASSID "T22 902"
@@ -93,6 +94,34 @@ void handle_record_service()
 void endofRecord()
 {
 	blink(100, 500);
+	
+	unsigned long off=signalBuffer.get(0);
+	unsigned long temp = 0;
+	unsigned long diff = 0;
+	LinkedList <unsigned long>tempBuff;
+
+	// saving the delta in tempbuff
+
+	for (int i=1; i<signalBuffer.size(); i++)
+	{
+		temp = signalBuffer.get(i);
+	
+		if(temp>off)
+			diff = temp-off;
+		else
+			diff=temp + (ULONG_MAX - off);
+
+		tempBuff.add(diff);
+		off=temp;
+	}
+
+
+	//copying tempbuff to sigbuff;
+	signalBuffer.clear();
+	for(int i=0; i<tempBuff.size();i++)
+		signalBuffer.add(tempBuff.get(i));
+	
+	tempBuff.clear();
 	blink(500, 500);
 }
 
@@ -102,14 +131,14 @@ void endofRecord()
 
 void handle_fetch_service()
 {
-	String ret = "{\"timecode\":[";
+	String ret = "{\"timecode\":[0";
 
 	int len = signalBuffer.size();
+	unsigned long acc=0;
 	for (int i = 0; i < len; i++)
 	{
-		if (i > 0)
-			ret += ",";
-		ret += String(signalBuffer.get(i));
+		acc+=signalBuffer.get(i);
+		ret += "," + String(acc);
 	}
 
 	ret += "]}";
@@ -123,8 +152,6 @@ void handle_fetch_service()
 void handle_playback_service()
 {
 	int len = signalBuffer.size();
-
-	unsigned long wt = 0;
 	bool state = true;
 
 	analogWriteFreq ( 40000 );
@@ -132,22 +159,14 @@ void handle_playback_service()
 
 	blink(200,1000);
 
-	unsigned long del = 0;
-
-	unsigned long offset = signalBuffer.get(0);
-
-	for(int i=1; i<len; i++)
+	for(int i=0; i<len; i++)
 	{
-		wt = signalBuffer.get(i);
-		del = wt-offset;
-		offset=wt;
-		
 		if(state)
 			digitalWrite ( PIN_TX, HIGH);
 		else
 			digitalWrite ( PIN_TX, LOW);
 		
-		delayMicroseconds(del);
+		delayMicroseconds(signalBuffer.get(i));
 
 		state = !state;
 	}
