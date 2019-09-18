@@ -8,11 +8,8 @@
  *     YP     `Y88P'  Y8888D'  `Y88P'  
  * 
  *  ► Pending
- * 
- *  x Implement playback
- *  x Implement save
- *  x Implement load
- * 
+ *  
+ *  ► File browser
  */
 
 #include <ESP8266WiFi.h>
@@ -31,6 +28,8 @@ const char *ssid = STASSID;
 const char *password = STAPSK;
 
 ESP8266WebServer server(80);
+
+#pragma region common response
 #define send_ok server.send(200, "application/json", "{\"status\":\"ok\"}")
 void send_err(String x)
 {
@@ -38,6 +37,8 @@ void send_err(String x)
 	Serial.println(x);
 	server.send(200, "application/json", "{\"status\":\"failed\",\"reason\":\"" + x + "\"}");
 }
+
+#pragma endregion
 
 #pragma region pin config
 #define PIN_RX D1
@@ -369,6 +370,11 @@ void handleNotFound()
 		File file = SPIFFS.open(uri, "r");
 		String ct = determineContentType(uri);
 
+		if(server.hasArg("download"))
+		{
+			ct = "application/octet-stream";
+		}
+
 		server.streamFile(file, ct);
 	}
 	else
@@ -393,8 +399,52 @@ void setupServer()
 		handle_playback_service();
 	});
 
-	server.on("/trim.service", []() {
+	server.on("/listdir", []() {
+		String path = "";
+		for(int i=0; i<server.args();i++)
+		{
+			if(server.argName(i)=="path")
+			{
+				path = server.arg(i);
+				break;
+			}
+		}
 
+		if(path=="")
+		{
+			send_err("Couldn't find query string parameter 'path'");
+			return;
+		}
+
+		Dir dir1=SPIFFS.openDir(path);
+		
+		String ret = "[";
+		bool isFirst = true;
+		while(dir1.next())
+		{
+			if(dir1.isFile())
+			{
+				if(!isFirst)
+					ret+=",";
+				isFirst=false;
+
+				ret+="{\"name\":\""+ dir1.fileName() +"\"}";
+			}
+		}
+
+		ret+="]";
+
+		server.send(200,"application/json",ret);
+	});
+
+	server.on("/download",[](){
+		if(!server.hasArg("path"))
+		{
+			send_err("query string 'path' not found.");
+			return;
+		}
+		
+		server.send(200,"text/html","<script>window.location.href='"+server.arg(0)+"?download=true';</script>");
 	});
 
 	server.onNotFound(handleNotFound);

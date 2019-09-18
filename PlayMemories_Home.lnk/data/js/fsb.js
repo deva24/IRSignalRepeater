@@ -116,7 +116,15 @@ function getDirectory(path)
 			fullname:a
 		});
 	});
+	files.sort(function(a,b)
+	{
+		if(a.icon=='folder' && b.icon=='file')return -1;
+		if(a.icon=='file' && b.icon=='folder')return 1;
 
+		if(a.name<b.name)return -1
+		if(a.name>b.name)return 1;
+		return 0;
+	});
 	return files;
 }
 
@@ -179,7 +187,7 @@ function deleteHandler()
 
 function downloadHandler()
 {
-	window.open("/download?path=" + app1.selected.fullname,"_blank");
+	window.open(app1.selected.fullname + "?download=true","_blank");
 	
 }
 
