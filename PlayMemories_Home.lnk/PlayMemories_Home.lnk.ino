@@ -18,6 +18,7 @@
 #include <FS.h>
 #include <LinkedList.h>
 #include <limits.h>
+#include <base64.hpp>
 
 #ifndef STASSID
 #define STASSID "T22 902"
@@ -445,6 +446,68 @@ void setupServer()
 		}
 		
 		server.send(200,"text/html","<script>window.location.href='"+server.arg(0)+"?download=true';</script>");
+	});
+
+	server.on("/upload",[](){
+		Serial.println("Upload");
+		
+		String path = "";
+		String content = "";
+
+		for(int i=0; i<server.args();i++)
+		{
+			if(server.argName(i) == "path")
+				path = server.arg(i);
+			else if(server.argName(i) == "file")
+				content = server.arg(i);
+		}
+
+		
+		unsigned char * content64 = new unsigned  char[content.length()+1];
+		for(int i=0; i<content.length();i++)
+			content64[i] = content.charAt(i);
+		content64[content.length()] = 0;
+		
+
+		if(path==""||content=="")
+			send_err("path or data is missing in form data");
+
+		int declen = decode_base64_length(content64);
+		unsigned char *data = new unsigned char[declen+1];
+		int len = decode_base64(content64,data);
+		data[declen] = 0;
+
+		File f1= SPIFFS.open(path,"w");
+		f1.write(data,declen);
+		
+		f1.close();
+		send_ok;
+	});
+
+	server.on("/delete",[](){
+		String path = "";
+		for(int i=0;i<server.args();i++)
+		{
+			if(server.argName(i)=="path")
+			{
+				path = server.arg(i);
+				break;
+			}
+		}
+
+		if(path=="")
+		{
+			send_err("'Path' parameter not found");
+			return;
+		}
+
+		if(SPIFFS.exists(path))
+		{
+			SPIFFS.remove(path);			
+			send_ok;
+		}
+
+		send_err("File not found.");
 	});
 
 	server.onNotFound(handleNotFound);
