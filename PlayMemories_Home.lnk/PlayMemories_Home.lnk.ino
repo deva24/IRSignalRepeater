@@ -21,7 +21,7 @@
 #include <base64.hpp>
 
 #ifndef STASSID
-#define STASSID "T22 902"
+#define STASSID "T22 902 HA"
 #define STAPSK "c0a8b74282"
 #endif
 
@@ -42,9 +42,9 @@ void send_err(String x)
 #pragma endregion
 
 #pragma region pin config
-#define PIN_RX D1
-#define PIN_CW D2
-#define PIN_TX D3
+#define PIN_RX D1 // Reciever pin
+#define PIN_CW D2 // Carrier Wave 40 hz square wave
+#define PIN_TX D3 // Transmission signal
 const int led = 2;
 #pragma endregion
 
